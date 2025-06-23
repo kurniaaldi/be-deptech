@@ -4,7 +4,7 @@ const { Op, fn, col, literal } = Sequelize;
 exports.getAll = async (req, res) => {
   const leaves = await Leave.findAll({
     model: Employee,
-    as: "Employee", // harus cocok dengan 'as' di relasi
+    as: "Employee",
   });
   res.json(leaves);
 };
