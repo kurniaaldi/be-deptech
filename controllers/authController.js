@@ -54,3 +54,45 @@ exports.updateMe = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getAll = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Admin.findAndCountAll({
+      attributes: { exclude: ["password"] },
+      limit,
+      offset,
+      order: [["id", "ASC"]],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+      status: "success",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed!", error: error.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const admin = await Admin.findByPk(req.params.id);
+    if (!admin) return res.status(404).json({ message: "Admin Not Found!" });
+
+    await admin.destroy();
+    res.json({ message: "Success!" });
+  } catch (error) {
+    res.status(500).json({ message: "failed", error: error.message });
+  }
+};
