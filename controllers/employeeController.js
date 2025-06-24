@@ -1,6 +1,34 @@
 const { Employee } = require("../models");
 
-exports.getAll = async (req, res) => res.json(await Employee.findAll());
+exports.getAll = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Employee.findAndCountAll({
+      limit,
+      offset,
+      order: [["id", "ASC"]],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving employees", error: err.message });
+  }
+};
 
 exports.getById = async (req, res) =>
   res.json(await Employee.findByPk(req.params.id));
