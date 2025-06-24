@@ -14,40 +14,71 @@ exports.getAll = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res
-      .json({
-        data: rows,
-        pagination: {
-          totalItems: count,
-          totalPages,
-          currentPage: page,
-          perPage: limit,
-        },
-        status: "success",
-      })
-      .status(200);
+    return res.status(200).json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+      status: "success",
+    });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving employees", error: err.message });
+    res.status(500).json({
+      message: "Error retrieving employees",
+      error: err.message,
+    });
   }
 };
 
-exports.getById = async (req, res) =>
-  res.json(await Employee.findByPk(req.params.id));
+exports.getById = async (req, res) => {
+  try {
+    const emp = await Employee.findByPk(req.params.id);
+    if (!emp) return res.status(404).json({ message: "Employee not found" });
+    return res.status(200).json(emp);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving employee", error: err.message });
+  }
+};
 
-exports.create = async (req, res) => res.json(await Employee.create(req.body));
+exports.create = async (req, res) => {
+  try {
+    const emp = await Employee.create(req.body);
+    return res.status(201).json(emp);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error creating employee", error: err.message });
+  }
+};
 
 exports.update = async (req, res) => {
-  const emp = await Employee.findByPk(req.params.id);
-  if (!emp) return res.status(404).json({ message: "Not found" });
-  await emp.update(req.body);
-  res.json(emp);
+  try {
+    const emp = await Employee.findByPk(req.params.id);
+    if (!emp) return res.status(404).json({ message: "Employee not found" });
+
+    await emp.update(req.body);
+    return res.status(200).json(emp);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error updating employee", error: err.message });
+  }
 };
 
 exports.remove = async (req, res) => {
-  const emp = await Employee.findByPk(req.params.id);
-  if (!emp) return res.status(404).json({ message: "Not found" });
-  await emp.destroy();
-  res.json({ message: "Deleted" });
+  try {
+    const emp = await Employee.findByPk(req.params.id);
+    if (!emp) return res.status(404).json({ message: "Employee not found" });
+
+    await emp.destroy();
+    return res.status(200).json({ message: "Employee deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error deleting employee", error: err.message });
+  }
 };
