@@ -7,25 +7,21 @@ exports.getAll = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await Employee.findAndCountAll({
+    const { count, rows } = await Leave.findAndCountAll({
       limit,
       offset,
       order: [["id", "ASC"]],
-    });
-
-    const totalPages = Math.ceil(count / limit);
-
-    const leaves = await Leave.findAll({
       include: [
         {
           model: Employee,
-          as: "Employee", // sesuai dengan alias di Leave.associate
+          as: "Employee",
         },
       ],
     });
+    const totalPages = Math.ceil(count / limit);
 
     res.json({
-      data: leaves,
+      data: rows,
       pagination: {
         totalItems: count,
         totalPages,
@@ -37,7 +33,7 @@ exports.getAll = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error retrieving employees", error: err.message });
+      .json({ message: "Error retrieving Leaves", error: error.message });
   }
 };
 
