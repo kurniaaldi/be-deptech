@@ -14,15 +14,18 @@ exports.getAll = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
-      data: rows,
-      pagination: {
-        totalItems: count,
-        totalPages,
-        currentPage: page,
-        perPage: limit,
-      },
-    });
+    res
+      .json({
+        data: rows,
+        pagination: {
+          totalItems: count,
+          totalPages,
+          currentPage: page,
+          perPage: limit,
+        },
+        status: "success",
+      })
+      .status(200);
   } catch (err) {
     res
       .status(500)
